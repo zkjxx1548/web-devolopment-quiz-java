@@ -11,7 +11,10 @@ import com.thoughtworks.rslist.repository.VoteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class RsService {
@@ -50,6 +53,14 @@ public class RsService {
   }
 
   public void buy(Trade trade, int id) {
+
+  }
+
+  public List<RsEventDto> sortRsEventByVoteNum(List<RsEventDto> rsEventDtoList) {
+    return rsEventDtoList.stream()
+            .sorted(Comparator.comparingInt(RsEventDto::getVoteNum).reversed())
+            .collect(Collectors.toList());
+
 
   }
 }

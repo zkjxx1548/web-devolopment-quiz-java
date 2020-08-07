@@ -62,8 +62,7 @@ class RsControllerTest {
 
     rsEventRepository.save(rsEventDto);
 
-    mockMvc
-        .perform(get("/rs/list"))
+    mockMvc.perform(get("/rs/list"))
         .andExpect(jsonPath("$", hasSize(1)))
         .andExpect(jsonPath("$[0].eventName", is("第一条事件")))
         .andExpect(jsonPath("$[0].keyword", is("无分类")))

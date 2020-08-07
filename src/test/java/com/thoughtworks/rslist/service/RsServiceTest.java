@@ -12,8 +12,11 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.verify;
@@ -88,5 +91,16 @@ class RsServiceTest {
         () -> {
           rsService.vote(vote, 1);
         });
+  }
+
+  @Test
+  void should_sort_rsEvent_when_save_by_voteNum() {
+    List<RsEventDto> rsEventDtoList = new ArrayList<>();
+    UserDto userDto = UserDto.builder().userName("zkj").age(25).gender("male").email("4381@qq.com").phone("18888888888").build();
+    for (int i = 0; i < 5; i++) {
+       rsEventDtoList.add(RsEventDto.builder().eventName("第" + (i + 1) + "条").keyword("twU").voteNum(10 - i).user(userDto).build());
+    }
+    when(rsEventRepository.findAll()).thenReturn(rsEventDtoList);
+    assertEquals(rsService.sortRsEventByVoteNum(rsEventDtoList).get(0).getEventName(), "第1条");
   }
 }
