@@ -101,6 +101,8 @@ class RsServiceTest {
        rsEventDtoList.add(RsEventDto.builder().eventName("第" + (i + 1) + "条").keyword("twU").voteNum(10 - i).user(userDto).build());
     }
     when(rsEventRepository.findAll()).thenReturn(rsEventDtoList);
-    assertEquals(rsService.sortRsEventByVoteNum(rsEventDtoList).get(0).getEventName(), "第1条");
+    assertEquals(rsService.sortRsEventByVoteNum(rsEventRepository.findAll()).get(0).getEventName(), "第1条");
+    rsEventDtoList.add(RsEventDto.builder().eventName("存入一条").keyword("twU").voteNum(14).user(userDto).build());
+    assertEquals(rsService.getHadRankedRsEventAfterSave(rsEventRepository.findAll()).get(0).getEventName(), "存入一条");
   }
 }

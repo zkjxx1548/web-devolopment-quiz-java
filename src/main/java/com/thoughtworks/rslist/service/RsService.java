@@ -60,7 +60,16 @@ public class RsService {
     return rsEventDtoList.stream()
             .sorted(Comparator.comparingInt(RsEventDto::getVoteNum).reversed())
             .collect(Collectors.toList());
+  }
 
+  public List<RsEventDto> setRankOfRsEventAfterSort(List<RsEventDto> rsEventDtoList) {
+    for (int i = 0; i < rsEventDtoList.size(); i++) {
+      rsEventDtoList.get(i).setRank(i + 1);
+    }
+    return rsEventDtoList;
+  }
 
+  public List<RsEventDto> getHadRankedRsEventAfterSave(List<RsEventDto> rsEventDtoList) {
+    return setRankOfRsEventAfterSort(sortRsEventByVoteNum(rsEventDtoList));
   }
 }
