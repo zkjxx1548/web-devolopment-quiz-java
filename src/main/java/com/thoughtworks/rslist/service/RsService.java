@@ -3,12 +3,14 @@ package com.thoughtworks.rslist.service;
 import com.thoughtworks.rslist.domain.Trade;
 import com.thoughtworks.rslist.domain.Vote;
 import com.thoughtworks.rslist.dto.RsEventDto;
+import com.thoughtworks.rslist.dto.TradeDto;
 import com.thoughtworks.rslist.dto.UserDto;
 import com.thoughtworks.rslist.dto.VoteDto;
 import com.thoughtworks.rslist.repository.RsEventRepository;
 import com.thoughtworks.rslist.repository.UserRepository;
 import com.thoughtworks.rslist.repository.VoteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
@@ -52,8 +54,27 @@ public class RsService {
     rsEventRepository.save(rsEvent);
   }
 
+  //id = rsEvent id;
   public void buy(Trade trade, int id) {
-
+    RsEventDto rsEventDto = rsEventRepository.findById(id).get();
+    RsEventDto originRsEventDto = rsEventRepository.findByRank(trade.getRank()).get();
+    TradeDto.builder()
+            .amount(trade.getAmount())
+            .rank(trade.getRank())
+            .rsEventDto(rsEventDto)
+            .build();
+    if (originRsEventDto.getAmount() < trade.getAmount()) {
+      rsEventRepository.deleteByRank(trade.getRank());
+      rsEventRepository.deleteById(id);
+      rsEventRepository.save(
+              RsEventDto.builder()
+                      .user(rsEventDto.getUser())
+                      .eventName(rsEventDto.getEventName())
+                      .keyword(rsEventDto.getKeyword())
+                      .voteNum(originRsEventDto.getVoteNum())
+                      .id(rsEventDto.getId())
+                      .rank(trade.getRank()).build());
+    }
   }
 
   public List<RsEventDto> sortRsEventByVoteNum(List<RsEventDto> rsEventDtoList) {

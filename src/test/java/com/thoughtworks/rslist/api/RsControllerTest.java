@@ -184,4 +184,6 @@ class RsControllerTest {
     assertEquals(voteDtos.size(), 1);
     assertEquals(voteDtos.get(0).getNum(), 1);
   }
+
+
 }

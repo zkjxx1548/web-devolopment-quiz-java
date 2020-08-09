@@ -1,17 +1,21 @@
-package com.thoughtworks.rslist.domain;
+package com.thoughtworks.rslist.dto;
 
-import com.thoughtworks.rslist.dto.RsEventDto;
-import com.thoughtworks.rslist.dto.UserDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
+import javax.persistence.Entity;
+import javax.persistence.Table;
+
+@Entity
 @Builder
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Trade {
+@Table(name = "Trade")
+public class TradeDto {
     private int amount;
     private int rank;
+    private RsEventDto rsEventDto;
 }
