@@ -6,6 +6,7 @@ import com.thoughtworks.rslist.dto.RsEventDto;
 import com.thoughtworks.rslist.dto.TradeDto;
 import com.thoughtworks.rslist.dto.UserDto;
 import com.thoughtworks.rslist.dto.VoteDto;
+import com.thoughtworks.rslist.exception.BuyRsEventRankFail;
 import com.thoughtworks.rslist.repository.RsEventRepository;
 import com.thoughtworks.rslist.repository.UserRepository;
 import com.thoughtworks.rslist.repository.VoteRepository;
@@ -74,6 +75,8 @@ public class RsService {
                       .voteNum(originRsEventDto.getVoteNum())
                       .id(rsEventDto.getId())
                       .rank(trade.getRank()).build());
+    } else {
+      throw new BuyRsEventRankFail();
     }
   }
 

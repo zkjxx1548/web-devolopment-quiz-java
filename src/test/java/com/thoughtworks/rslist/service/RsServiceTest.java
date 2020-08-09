@@ -6,6 +6,7 @@ import com.thoughtworks.rslist.dto.RsEventDto;
 import com.thoughtworks.rslist.dto.TradeDto;
 import com.thoughtworks.rslist.dto.UserDto;
 import com.thoughtworks.rslist.dto.VoteDto;
+import com.thoughtworks.rslist.exception.BuyRsEventRankFail;
 import com.thoughtworks.rslist.repository.RsEventRepository;
 import com.thoughtworks.rslist.repository.UserRepository;
 import com.thoughtworks.rslist.repository.VoteRepository;
@@ -133,5 +134,16 @@ class RsServiceTest {
                             .build());
   }
 
-
+  @Test
+  void should_return_400_when_buy_rsEvent_rank_given_amount_not_more_than_origin_raEvent_amount() {
+    List<RsEventDto> rsEventDtoList = new ArrayList<>();
+    UserDto userDto = UserDto.builder().userName("zkj").age(25).gender("male").email("4381@qq.com").phone("18888888888").build();
+    for (int i = 0; i < 5; i++) {
+      rsEventDtoList.add(RsEventDto.builder().id(i + 1).eventName("第" + (i + 1) + "条").keyword("twU").voteNum(10 - i).user(userDto).amount(200).build());
+    }
+    when(rsEventRepository.findById(5)).thenReturn(Optional.of(rsEventDtoList.get(4)));
+    when(rsEventRepository.findByRank(4)).thenReturn(Optional.of(rsService.sortRsEventByVoteNum(rsEventDtoList).get(3)));
+    Trade trade = new Trade(100, 4);
+    assertThrows(BuyRsEventRankFail.class, () ->rsService.buy(trade, 5));
+  }
 }
