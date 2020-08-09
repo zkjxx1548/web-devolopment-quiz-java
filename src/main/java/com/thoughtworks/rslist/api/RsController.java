@@ -5,6 +5,7 @@ import com.thoughtworks.rslist.domain.Trade;
 import com.thoughtworks.rslist.domain.Vote;
 import com.thoughtworks.rslist.dto.RsEventDto;
 import com.thoughtworks.rslist.dto.UserDto;
+import com.thoughtworks.rslist.exception.BuyRsEventRankFailException;
 import com.thoughtworks.rslist.exception.Error;
 import com.thoughtworks.rslist.exception.RequestNotValidException;
 import com.thoughtworks.rslist.repository.RsEventRepository;
@@ -97,7 +98,12 @@ public class RsController {
 
   @PostMapping("/rs/buy/{id}")
   public ResponseEntity buy(@PathVariable int id, @RequestBody Trade trade){
-    rsService.buy(trade, id);
+    try {
+      rsService.buy(trade, id);
+    } catch (BuyRsEventRankFailException e) {
+      return ResponseEntity.badRequest().build();
+    }
+
     return ResponseEntity.ok().build();
   }
 

@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
@@ -15,7 +17,8 @@ import javax.persistence.Table;
 @NoArgsConstructor
 @Table(name = "Trade")
 public class TradeDto {
+    @Id @GeneratedValue private int id;
     private int amount;
     private int rank;
-    private RsEventDto rsEventDto;
+    private RsEventDto rsEvent;
 }

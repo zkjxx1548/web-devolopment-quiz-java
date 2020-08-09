@@ -6,12 +6,11 @@ import com.thoughtworks.rslist.dto.RsEventDto;
 import com.thoughtworks.rslist.dto.TradeDto;
 import com.thoughtworks.rslist.dto.UserDto;
 import com.thoughtworks.rslist.dto.VoteDto;
-import com.thoughtworks.rslist.exception.BuyRsEventRankFail;
+import com.thoughtworks.rslist.exception.BuyRsEventRankFailException;
 import com.thoughtworks.rslist.repository.RsEventRepository;
+import com.thoughtworks.rslist.repository.TradeRepository;
 import com.thoughtworks.rslist.repository.UserRepository;
 import com.thoughtworks.rslist.repository.VoteRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
@@ -24,11 +23,13 @@ public class RsService {
   final RsEventRepository rsEventRepository;
   final UserRepository userRepository;
   final VoteRepository voteRepository;
+  final TradeRepository tradeRepository;
 
-  public RsService(RsEventRepository rsEventRepository, UserRepository userRepository, VoteRepository voteRepository) {
+  public RsService(RsEventRepository rsEventRepository, UserRepository userRepository, VoteRepository voteRepository, TradeRepository tradeRepository) {
     this.rsEventRepository = rsEventRepository;
     this.userRepository = userRepository;
     this.voteRepository = voteRepository;
+    this.tradeRepository = tradeRepository;
   }
 
   public void vote(Vote vote, int rsEventId) {
@@ -59,11 +60,7 @@ public class RsService {
   public void buy(Trade trade, int id) {
     RsEventDto rsEventDto = rsEventRepository.findById(id).get();
     RsEventDto originRsEventDto = rsEventRepository.findByRank(trade.getRank()).get();
-    TradeDto.builder()
-            .amount(trade.getAmount())
-            .rank(trade.getRank())
-            .rsEventDto(rsEventDto)
-            .build();
+
     if (originRsEventDto.getAmount() < trade.getAmount()) {
       rsEventRepository.deleteByRank(trade.getRank());
       rsEventRepository.deleteById(id);
@@ -74,9 +71,16 @@ public class RsService {
                       .keyword(rsEventDto.getKeyword())
                       .voteNum(originRsEventDto.getVoteNum())
                       .id(rsEventDto.getId())
-                      .rank(trade.getRank()).build());
+                      .rank(trade.getRank())
+                      .build());
+      tradeRepository.save(
+              TradeDto.builder()
+                      .amount(trade.getAmount())
+                      .rank(trade.getRank())
+                      .rsEvent(rsEventDto)
+                      .build());
     } else {
-      throw new BuyRsEventRankFail();
+      throw new BuyRsEventRankFailException();
     }
   }
 

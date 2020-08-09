@@ -3,17 +3,16 @@ package com.thoughtworks.rslist.service;
 import com.thoughtworks.rslist.domain.Trade;
 import com.thoughtworks.rslist.domain.Vote;
 import com.thoughtworks.rslist.dto.RsEventDto;
-import com.thoughtworks.rslist.dto.TradeDto;
 import com.thoughtworks.rslist.dto.UserDto;
 import com.thoughtworks.rslist.dto.VoteDto;
-import com.thoughtworks.rslist.exception.BuyRsEventRankFail;
+import com.thoughtworks.rslist.exception.BuyRsEventRankFailException;
 import com.thoughtworks.rslist.repository.RsEventRepository;
+import com.thoughtworks.rslist.repository.TradeRepository;
 import com.thoughtworks.rslist.repository.UserRepository;
 import com.thoughtworks.rslist.repository.VoteRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -23,7 +22,6 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -34,13 +32,14 @@ class RsServiceTest {
   @Mock RsEventRepository rsEventRepository;
   @Mock UserRepository userRepository;
   @Mock VoteRepository voteRepository;
+  @Mock TradeRepository tradeRepository;
   LocalDateTime localDateTime;
   Vote vote;
 
   @BeforeEach
   void setUp() {
     initMocks(this);
-    rsService = new RsService(rsEventRepository, userRepository, voteRepository);
+    rsService = new RsService(rsEventRepository, userRepository, voteRepository, tradeRepository);
     localDateTime = LocalDateTime.now();
     vote = Vote.builder().voteNum(2).rsEventId(1).time(localDateTime).userId(1).build();
   }
@@ -120,7 +119,10 @@ class RsServiceTest {
     }
     when(rsEventRepository.findById(5)).thenReturn(Optional.of(rsEventDtoList.get(4)));
     when(rsEventRepository.findByRank(4)).thenReturn(Optional.of(rsService.sortRsEventByVoteNum(rsEventDtoList).get(3)));
-    Trade trade = new Trade(100, 4);
+    Trade trade = Trade.builder()
+            .amount(100)
+            .rank(4)
+            .build();
     rsService.buy(trade, 5);
     verify(rsEventRepository)
             .save(
@@ -135,7 +137,7 @@ class RsServiceTest {
   }
 
   @Test
-  void should_return_400_when_buy_rsEvent_rank_given_amount_not_more_than_origin_raEvent_amount() {
+  void should_throw_exception_when_buy_rsEvent_rank_given_amount_not_more_than_origin_raEvent_amount() {
     List<RsEventDto> rsEventDtoList = new ArrayList<>();
     UserDto userDto = UserDto.builder().userName("zkj").age(25).gender("male").email("4381@qq.com").phone("18888888888").build();
     for (int i = 0; i < 5; i++) {
@@ -143,7 +145,10 @@ class RsServiceTest {
     }
     when(rsEventRepository.findById(5)).thenReturn(Optional.of(rsEventDtoList.get(4)));
     when(rsEventRepository.findByRank(4)).thenReturn(Optional.of(rsService.sortRsEventByVoteNum(rsEventDtoList).get(3)));
-    Trade trade = new Trade(100, 4);
-    assertThrows(BuyRsEventRankFail.class, () ->rsService.buy(trade, 5));
+    Trade trade = Trade.builder()
+            .amount(100)
+            .rank(4)
+            .build();
+    assertThrows(BuyRsEventRankFailException.class, () ->rsService.buy(trade, 5));
   }
 }
